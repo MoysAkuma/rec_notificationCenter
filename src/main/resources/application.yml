@@ -1,6 +1,6 @@
 spring:
   application:
-    name: rec_notification_center
+    name: rec-notification-center
 
 camel:
   servlet:

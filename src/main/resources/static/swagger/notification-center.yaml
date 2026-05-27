@@ -2,13 +2,13 @@ openapi: 3.0.3
 info:
   title: Notification Center Reception API
   version: 1.0.0
-  description: Contrato Swagger/OpenAPI para la capa de recepcion construida con Apache Camel.
+  description: Contrato Swagger/OpenAPI para la capa de recepción construida con Apache Camel.
 servers:
   - url: http://localhost:8080/api
 paths:
   /notifications:
     post:
-      summary: Recibe una notificacion
+      summary: Recibe una notificación
       operationId: receiveNotification
       requestBody:
         required: true
@@ -18,7 +18,7 @@ paths:
               $ref: '#/components/schemas/NotificationRequest'
       responses:
         '202':
-          description: Notificacion aceptada para procesamiento
+          description: Notificación aceptada para procesamiento
           content:
             application/json:
               schema:

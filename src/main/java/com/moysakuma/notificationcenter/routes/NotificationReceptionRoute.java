@@ -25,7 +25,7 @@ public class NotificationReceptionRoute extends RouteBuilder {
 
         rest("/notifications")
                 .post()
-                .description("Recibe una notificacion")
+                .description("Recibe una notificación")
                 .type(NotificationRequest.class)
                 .outType(NotificationResponse.class)
                 .to("direct:receiveNotification");
