@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: rec-notification-center
+
+camel:
+  servlet:
+    mapping:
+      context-path: /api/*
