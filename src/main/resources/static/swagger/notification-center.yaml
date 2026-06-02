@@ -2,54 +2,126 @@ openapi: 3.0.3
 info:
   title: Notification Center Reception API
   version: 1.0.0
-  description: Contrato Swagger/OpenAPI para la capa de recepción construida con Apache Camel.
-servers:
-  - url: http://localhost:8080/api
-paths:
-  /notifications:
-    post:
-      summary: Recibe una notificación
-      operationId: receiveNotification
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NotificationRequest'
-      responses:
-        '202':
-          description: Notificación aceptada para procesamiento
+  description: API para mandar notificaciones de diferentes canales (EMAIL, SMS, PUSH) al Notification Center
+  servers:
+    - url: http://localhost:8080/api
+  paths:
+    /onboarding:
+      post:
+        summary: Subscibcion al Notification Center
+        description: Endpoint para que los servicios se suscriban al Notification Center y puedan enviar notificaciones
+        operationId: subscribeToNotificationCenter
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationResponse'
+                $ref: '#/components/schemas/OnboardingRequest'
+        responses:
+          '201':
+            description: Cliente suscrito exitosamente
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OnboardingResponse'
+    /send:
+      post:
+        summary: Enviar notificación al Notification Center
+        description: Endpoint para enviar una notificación al Notification Center
+        operationId: sendNotificationToCenter
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendNotificationRequest'
+        responses:
+          '200':
+            description: Notificación enviada exitosamente
+    /resend:
+      post:
+        summary: Reenviar notificación al Notification Center
+        description: Endpoint para reenviar una notificación al Notification Center
+        operationId: resendNotificationToCenter
+        parameters:
+          - in: query
+            name: notificationId
+            schema:
+              type: string
+              format: uuid
+            required: true
+            description: ID de la notificación a reenviar
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendNotificationRequest'
+        responses:
+          '200':
+            description: Notificación enviada exitosamente
+      get:
+        summary: Obtener notificaciones pendientes de reenvío
+        description: Endpoint para obtener las notificaciones han sido programadas para reenvío pero aún no han sido reenviadas
+        operationId: getResendNotifications
+        responses:
+          '200':
+            description: Lista de notificaciones pendientes de reenvío
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ResendedNotificationResponse'
+    /notificaciones:
+      get:
+        summary: Obtener notificaciones enviadas por un servicio
+        description: Endpoint para obtener las notificaciones que un servicio ha enviado al Notification Center
+        operationId: getSentNotifications
+        parameters:
+          - in: query
+            name: apiKey
+            schema:
+              type: string
+              format: uuid
+            required: true
+            description: API Key del servicio para filtrar las notificaciones enviadas por ese servicio
+        responses:
+          '200':
+            description: Lista de notificaciones enviadas por el servicio
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SentNotificationResponse'
 components:
   schemas:
-    NotificationRequest:
+    OnboardingRequest:
       type: object
       required:
-        - recipient
-        - channel
-        - message
+        - nombreServicio
+        - correoContacto
+        - telefonoContacto
       properties:
-        recipient:
+        nombreServicio:
           type: string
-          example: user@example.com
-        channel:
+          example: Adondevamos.net
+        correoContacto:
           type: string
-          example: EMAIL
-        message:
+          example: contacto@adondevamos.net
+        telefonoContacto:
           type: string
-          example: Hola desde Notification Center
-    NotificationResponse:
+          example: "+1234567890"
+    OnboardingResponse:
       type: object
       required:
-        - notificationId
+        - ApiKey
         - status
       properties:
-        notificationId:
+        ApiKey:
           type: string
           format: uuid
         status:
           type: string
-          example: RECEIVED
+          example: SUBSCRIBED
