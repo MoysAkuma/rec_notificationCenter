@@ -1,4 +1,4 @@
-package com.moysakuma.notificationcenter.model.Send;
+package com.moysakuma.notificationcenter.dto.commons;
 
 public record Valores(
     String clave,

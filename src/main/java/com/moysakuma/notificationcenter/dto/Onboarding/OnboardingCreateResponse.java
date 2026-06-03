@@ -1,4 +1,4 @@
-package com.moysakuma.notificationcenter.model.Onboarding;
+package com.moysakuma.notificationcenter.dto.Onboarding;
 
 public record OnboardingCreateResponse(
     String folio,
