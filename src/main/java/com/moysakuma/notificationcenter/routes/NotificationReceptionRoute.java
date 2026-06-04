@@ -24,17 +24,16 @@ public class NotificationReceptionRoute extends RouteBuilder {
                 .apiProperty("api.version", "1.0.0")
                 .apiProperty("cors", "true");
 
-        /*rest("/onboarding")
+        rest("/notification")
                 .post()
-                .description("Alta de servicio dentro del notification center")
-                .type(OnboardingCreateRequest.class)
-                .outType(OnboardingCreateResponse.class)
+                .description("Creacion de notificacion")
+                .type(NotificationRequest.class)
+                .outType(NotificationResponse.class)
                 .to("direct:receiveNotification");
 
         from("direct:receiveNotification")
                 .routeId("notification-reception")
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-                .process(exchange -> exchange.getMessage().setBody(new OnboardingCreateResponse(UUID.randomUUID().toString(), "RECEIVED")));
-                */
+                .process(exchange -> exchange.getMessage().setBody(new NotificationResponse(UUID.randomUUID().toString(), "RECEIVED", "Notification request received successfully")));
     }
 }

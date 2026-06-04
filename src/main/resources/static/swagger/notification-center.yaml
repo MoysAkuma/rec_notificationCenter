@@ -8,7 +8,7 @@ info:
   paths:
     /onboarding:
       post:
-        summary: Subscibcion al Notification Center
+        summary: Subscripción al Notification Center
         description: Endpoint para que los servicios se suscriban al Notification Center y puedan enviar notificaciones
         operationId: subscribeToNotificationCenter
         requestBody:
@@ -18,110 +18,633 @@ info:
               schema:
                 $ref: '#/components/schemas/OnboardingRequest'
         responses:
-          '201':
+          '200':
             description: Cliente suscrito exitosamente
             content:
               application/json:
                 schema:
                   $ref: '#/components/schemas/OnboardingResponse'
-    /send:
+    /notifications:
       post:
-        summary: Enviar notificación al Notification Center
-        description: Endpoint para enviar una notificación al Notification Center
-        operationId: sendNotificationToCenter
+        summary: Creación de notificación
+        description: Endpoint para que los servicios envíen notificaciones al Notification Center
+        operationId: createNotification
+        headers:
+          - name: X-Api-Key
+            description: API KEY del cliente que se suscribió al Notification Center
+            required: true
+            schema:
+              type: string
+              format: uuid
         requestBody:
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SendNotificationRequest'
+                $ref: '#/components/schemas/CreateNotificationRequest'
         responses:
           '200':
             description: Notificación enviada exitosamente
-    /resend:
-      post:
-        summary: Reenviar notificación al Notification Center
-        description: Endpoint para reenviar una notificación al Notification Center
-        operationId: resendNotificationToCenter
-        parameters:
-          - in: query
-            name: notificationId
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CreateNotificationResponse'
+      get:
+        summary: Lectura de notificaciones enviadas
+        description: Endpoint para que los servicios puedan consultar las notificaciones que han enviado al Notification Center
+        operationId: readSendedNotifications
+        headers:
+          - name: X-Api-Key
+            description: API KEY del cliente que se suscribió al Notification Center
+            required: true
             schema:
               type: string
               format: uuid
+        responses:
+          '200':
+            description: Notificaciones obtenidas exitosamente
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ReadSendedNotificationResponse'
+      get:
+        summary: Lectura de notificación por folioId
+        description: Endpoint para que los servicios puedan consultar una notificación específica que han enviado al Notification Center utilizando su folioId
+        operationId: readSendedNotificationByFolioId
+        headers:
+          - name: X-Api-Key
+            description: API KEY del cliente que se suscribió al Notification Center
             required: true
-            description: ID de la notificación a reenviar
+            schema:
+              type: string
+              format: uuid
+        parameters:
+          - name: folioId
+            in: query
+            description: Folio ID de la notificación a consultar
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Notificación obtenida exitosamente
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ReadSendedNotificationByFolioIdResponse'
+    /notifications/resend:
+      post:
+        summary: Reenvío de notificación
+        description: Endpoint para que los servicios puedan reenviar una notificación utilizando su folioId
+        operationId: resendNotification
+        headers:
+          - name: X-Api-Key
+            description: API KEY del cliente que se suscribió al Notification Center
+            required: true
+            schema:
+              type: string
+              format: uuid
+        parameters:
+          - name: folioId
+            in: query
+            description: Folio ID de la notificación a reenviar
+            required: true
+            schema:
+              type: string
+              format: uuid
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendNotificationRequest'
+        responses:
+          '200':
+            description: Notificación reenviada exitosamente
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ResendNotificationResponse'
+      get:
+        summary: Lectura de notificaciones reenviadas
+        description: Endpoint para que los servicios puedan consultar las notificaciones que han reenviado al Notification Center
+        operationId: readResendNotifications
+        headers:
+          - name: X-Api-Key
+            description: API KEY
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Notificaciones obtenidas exitosamente
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ReadResendNotificationResponse'
+    /notification-types:
+      get:
+        summary: Lectura de tipos de notificaciones
+        description: Endpoint para que los servicios puedan consultar los tipos de notificaciones disponibles en el Notification Center
+        operationId: readNotificationTypes
+        headers:
+          - name: X-Api-Key
+            description: API KEY del cliente que se suscribió al Notification Center
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Tipos de notificaciones obtenidos exitosamente
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ReadNotificationTypesResponse'
+      post:
+        summary: Creación de tipo de notificación
+        description: Endpoint para que los servicios puedan crear nuevos tipos de notificaciones en el Notification Center
+        operationId: createNotificationTypes
+        headers:
+          - name: X-Api-Key
+            description: API KEY
+            required: true
+            schema:
+              type: string
+              format: uuid
         requestBody:
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SendNotificationRequest'
+                $ref: '#/components/schemas/CreateNotificationTypesRequest'
         responses:
           '200':
-            description: Notificación enviada exitosamente
-      get:
-        summary: Obtener notificaciones pendientes de reenvío
-        description: Endpoint para obtener las notificaciones han sido programadas para reenvío pero aún no han sido reenviadas
-        operationId: getResendNotifications
-        responses:
-          '200':
-            description: Lista de notificaciones pendientes de reenvío
+            description: Tipo de notificación creado exitosamente
             content:
               application/json:
                 schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/ResendedNotificationResponse'
-    /notificaciones:
-      get:
-        summary: Obtener notificaciones enviadas por un servicio
-        description: Endpoint para obtener las notificaciones que un servicio ha enviado al Notification Center
-        operationId: getSentNotifications
-        parameters:
-          - in: query
-            name: apiKey
+                  $ref: '#/components/schemas/CreateNotificationTypesResponse'
+      put:
+        summary: Actualización de tipo de notificación
+        description: Endpoint para que los servicios puedan actualizar los tipos de notificaciones disponibles en el Notification Center
+        operationId: updateNotificationTypes
+        headers:
+          - name: X-Api-Key
+            description: API KEY
+            required: true
             schema:
               type: string
               format: uuid
+        parameters:
+          - name: notificationId
+            in: query
+            description: Notification ID del tipo de notificación a actualizar
             required: true
-            description: API Key del servicio para filtrar las notificaciones enviadas por ese servicio
+            schema:
+              type: string
+              format: uuid
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateNotificationTypesRequest'
         responses:
           '200':
-            description: Lista de notificaciones enviadas por el servicio
+            description: Tipo de notificación actualizado exitosamente
             content:
               application/json:
                 schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/SentNotificationResponse'
+                  $ref: '#/components/schemas/UpdateNotificationTypesResponse'
 components:
   schemas:
+    tracking:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "DELIVERED"
+        hora:
+          type: string
+          format: date-time
+          example: "23:05:2026 07:02"
     OnboardingRequest:
       type: object
       required:
-        - nombreServicio
-        - correoContacto
-        - telefonoContacto
+        - nombre
+        - email
+        - servicio
+        - configuracion
+        - contacto
+        - subscripcion
       properties:
-        nombreServicio:
+        nombre:
           type: string
-          example: Adondevamos.net
-        correoContacto:
+          example: MoysAkuma
+        email:
           type: string
           example: contacto@adondevamos.net
-        telefonoContacto:
+        servicio:
           type: string
-          example: "+1234567890"
+          example: "Adondevamos.net"
+        configuracion:
+          type: object
+          properties:
+            correo:
+              type: string
+              example: "noreply@adondevamos.net"
+            remitente:
+              type: string
+              example: "Adondevamos.net"
+            password:
+              type: string
+              example: "emailpassword123"
+            recipiente_prueba:
+              type: string
+              example: "test@adondevamos.net"
+            correo_prueba:
+              type: string
+              example: "moises.moran.dev@gmail.com"
+            password:
+              type: string
+              example: "emailpassword123"
+        contacto:
+          type: object
+          properties:
+            nombre:
+              type: string
+              example: "Moises Moran"
+            correo:
+              type: string
+              example: "moises.moran.dev@gmail.com"
+        subscripcion:
+          type: object
+          properties:
+            quota:
+              type: string
+              example: "UNLIMITED"
     OnboardingResponse:
       type: object
       required:
-        - ApiKey
+        - clienteId
         - status
+        - message
       properties:
-        ApiKey:
+        clienteId:
           type: string
           format: uuid
         status:
           type: string
           example: SUBSCRIBED
+        message:
+          type: string
+          example: "Cliente suscrito exitosamente"
+    CreateNotificationRequest:
+      type: object
+      required:
+        - notificacionId
+        - templateId
+        - correo_destino
+        - hora_envio
+        - valores
+      properties:
+        notificacionId:
+          type: string
+          format: uuid
+        templateId:
+          type: string
+          format: uuid
+        correo_destino:
+          type: string
+          example: "moises141294@hotmail.com"
+        hora_envio:
+          type: string
+          format: date-time
+          example: "23:05:2026 07:02"
+        valores:
+          type: array
+          items:
+            type: object
+            properties:
+              clave:
+                type: string
+                example: "nombre_usuario"
+              valor:
+                type: string
+                example: "Moises Moran"
+    CreateNotificationResponse:
+      type: object
+      required:
+        - folioId
+        - status
+        - message
+      properties:
+        folioId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: SENT
+        message:
+          type: string
+          example: "Notificación enviada exitosamente"
+    ReadSendedNotificationResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              folioId:
+                type: string
+                format: uuid
+              notificacionId:
+                type: string
+                format: uuid
+              templateId:
+                type: string
+                format: uuid
+              correo_destino:
+                type: string
+                example: "moises141294@hotmail.com"
+              asunto:
+                type: string
+                example: "Bienvenido a Adondevamos.net"
+              html_body:
+                type: string
+                example: "<html><body><h1>Hola Moises Moran, bienvenido a Adondevamos.net</h1></body></html>"
+              tracking:
+                type: array
+                items:
+                  $ref: '#/components/schemas/tracking'
+    ResendNotificationRequest:
+      type: object
+      properties:
+        reemplaza_templateId:
+          type: string
+          format: uuid
+        reemplaza_correo_destino:
+          type: string
+          example: "juancamanei@example.com"
+        reemplaza_valores:
+          type: array
+          items:
+            type: object
+            properties:
+              clave:
+                type: string
+                example: "nombre_usuario"
+              valor:
+                type: string
+                example: "Juan Camanei"
+    ResendNotificationResponse:
+      type: object
+      required:
+        - folioId
+        - status
+        - message
+      properties:
+        folioId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: RESENT
+        message:
+          type: string
+          example: "Notificación reenviada exitosamente"
+        hora_reenvio:
+          type: string
+          format: date-time
+          example: "23:05:2026 07:02"
+    ReadResendNotificationResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              folioId:
+                type: string
+                format: uuid
+              folioOrigenId:
+                type: string
+                format: uuid
+              notificacionId:
+                type: string
+                format: uuid
+              templateId:
+                type: string
+                format: uuid
+              correo_destino:
+                type: string
+                example: "juancamanei@example.com"
+              asunto:
+                type: string
+                example: "Bienvenido a Adondevamos.net"
+              html_body:
+                type: string
+                example: "<html><body><h1>Hola Juan Camanei, bienvenido a Adondevamos.net</h1></body></html>"
+              tracking:
+                type: array
+                items:
+                  $ref: '#/components/schemas/tracking'
+    ReadSendedNotificationByFolioIdResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          properties:
+            notificacionId:
+              type: string
+              format: uuid
+            templateId:
+              type: string
+              format: uuid
+            correo_destino:
+              type: string
+              example: "juancamanei@example.com"
+            asunto:
+              type: string
+              example: "Bienvenido a Adondevamos.net"
+            html_body:
+              type: string
+              example: "<html><body><h1>Hola Juan Camanei, bienvenido a Adondevamos.net</h1></body></html>"
+            tracking:
+              type: array
+              items:
+                $ref: '#/components/schemas/tracking'
+    CreateNotificationTypesRequest:
+      type: object
+      required:
+        - asunto
+        - plantilla
+        - descripcion
+        - valores
+      properties:
+        asunto:
+          type: string
+          example: "Bienvenido a Adondevamos.net"
+        descripcion:
+          type: string
+          example: "Notificación que se envía a los nuevos usuarios al registrarse"
+        plantilla:
+          type: string
+          example: "nombreArchivo.html"
+        valores:
+          type: array
+          items:
+            type: object
+            properties:
+              clave:
+                type: string
+                example: "nombre_usuario"
+              descripcion:
+                type: string
+                example: "Nombre del usuario"
+    CreateNotificationTypesResponse:
+      type: object
+      required:
+        - templateId
+        - status
+        - message
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: CREATED
+        message:
+          type: string
+          example: "Tipo de notificación creado exitosamente"
+    UpdateNotificationTypesRequest:
+      type: object
+      properties:
+        asunto:
+          type: string
+          example: "Bienvenido a Adondevamos.net"
+        descripcion:
+          type: string
+          example: "Notificación que se envía a los nuevos usuarios al registrarse"
+        plantilla:
+          type: string
+          example: "nombreArchivo.html"
+        valores:
+          type: array
+          items:
+            type: object
+            properties:
+              clave:
+                type: string
+                example: "nombre_usuario"
+              descripcion:
+                type: string
+                example: "Nombre del usuario"
+    ReadNotificationTypesResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              templates:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    templateId:
+                      type: string
+                      format: uuid
+              asunto:
+                type: string
+                example: "Bienvenido a Adondevamos.net"
+              descripcion:
+                type: string
+                example: "Notificación que se envía a los nuevos usuarios al registrarse"
+              plantilla:
+                type: string
+                example: "nombreArchivo.html"
+              valores:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    clave:
+                      type: string
+                      example: "nombre_usuario"
+                    descripcion:
+                      type: string
+                      example: "Nombre del usuario"
+    CreateTemplateRequest:
+      type : object
+      required:
+        - archivo
+        - valores
+      properties:
+        archivo:
+          type: string
+          example: "nombreArchivo.html"
+        valores:
+          type: array
+          items:
+            type: object
+            properties:
+              clave:
+                type: string
+                example: "nombre_usuario"
+              valor:
+                type: string
+                example: "Moises Moran"
+        esDefault:
+          type: boolean
+          example: false
+      CreateTemplateResponse:
+        type: object
+        required:
+          - templateId
+          - status
+          - message
+        properties:
+          templateId:
+            type: string
+            format: uuid
+          status:
+            type: string
+            example: CREATED
+          message:
+            type: string
+            example: "Plantilla creada exitosamente"
+    UpdateTemplateRequest:
+      type : object
+      properties:
+        archivo:
+          type: string
+          example: "nombreArchivo.html"
+        esDefault:
+          type: boolean
+          example: false
+        valores:
+          type: array
+          items:
+            type: object
+            properties:
+              clave:
+                type: string
+                example: "nombre_usuario"
+              valor:
+                type: string
+                example: "Moises Moran"
+
